@@ -1,12 +1,9 @@
 using UnityEngine;
 
 /// <summary>
-/// FSM Skeleton Bomb: Run -> Lock -> Chase -> Explode.
-/// - Run    : berlari di path (dijalankan EnemyMovement), sambil memindai tower.
-/// - Lock   : tower off-path terdeteksi, berhenti sebentar dan mengunci target.
-/// - Chase  : mengejar target terkunci; target lain tidak mengalihkan aggro.
-/// - Explode: meledak dan memberi damage ke tower, lalu hancur.
-/// Jika tidak ada target off-path dan menabrak tower on-path, langsung meledak (damage lebih besar).
+/// FSM Skeleton Bomb dengan Serangan AoE:
+/// - Memindai Tower, Barrack, dan Soldier di sekitarnya.
+/// - Saat meledak, memberikan damage AoE ke SEMUA target di radius ledakan.
 /// </summary>
 [RequireComponent(typeof(EnemyMovement))]
 public class SkeletonBombAI : MonoBehaviour
@@ -15,26 +12,23 @@ public class SkeletonBombAI : MonoBehaviour
 
     [Header("Detection")]
     [SerializeField] private float detectionRadius = 6f;
-    [Tooltip("Seberapa sering daftar tower diperbarui (detik).")]
     [SerializeField] private float scanInterval = 0.2f;
-    [Tooltip("Tower dalam jarak ini dari garis path dianggap on-path.")]
     [SerializeField] private float onPathRadius = 1.0f;
 
-    [Header("Chase")]
+    [Header("Chase & Explode")]
     [SerializeField] private float lockDuration = 0.25f;
     [SerializeField] private float chaseSpeed = 9f;
-    [Tooltip("Jarak ke tower saat bom meledak / dianggap menabrak.")]
     [SerializeField] private float explodeDistance = 0.8f;
+    [Tooltip("Radius area ledakan AoE saat bom meledak.")]
+    [SerializeField] private float explosionRadius = 2.5f;
 
-    [Header("Damage ke Tower")]
-    [SerializeField] private float offPathDamage = 15f;
-    [SerializeField] private float onPathDamage = 40f;
+    [Header("Damage ke Target")]
+    [SerializeField] private float offPathDamage = 25f;
+    [SerializeField] private float onPathDamage = 50f;
 
     [Header("Efek Visual")]
-    [Tooltip("Prefab VFX ledakan dari Project window (bukan objek di scene). Boleh dikosongkan.")]
     [SerializeField] private GameObject explosionEffectPrefab;
     [SerializeField] private float explosionEffectScale = 1f;
-    [Tooltip("Efek dihapus otomatis setelah waktu ini (detik).")]
     [SerializeField] private float explosionEffectLifetime = 3f;
 
     [Header("Debug")]
@@ -42,8 +36,7 @@ public class SkeletonBombAI : MonoBehaviour
 
     private EnemyMovement movement;
     private State currentState;
-    private Tower lockedTarget;
-    private Tower[] cachedTowers;
+    private Transform lockedTarget;
     private float scanTimer;
     private float lockTimer;
     private float pendingDamage;
@@ -70,8 +63,6 @@ public class SkeletonBombAI : MonoBehaviour
         }
     }
 
-    // ---------- State transitions ----------
-
     private void ChangeState(State newState)
     {
         currentState = newState;
@@ -85,11 +76,11 @@ public class SkeletonBombAI : MonoBehaviour
         {
             case State.Run:
                 lockedTarget = null;
-                movement.enabled = true;   // lanjut berjalan di path
+                movement.enabled = true;
                 break;
 
             case State.Lock:
-                movement.enabled = false;  // berhenti mengikuti path
+                movement.enabled = false;
                 lockTimer = lockDuration;
                 break;
 
@@ -104,40 +95,49 @@ public class SkeletonBombAI : MonoBehaviour
         }
     }
 
-    // ---------- State updates ----------
-
     private void UpdateRun()
     {
-        RefreshTowerCache();
+        scanTimer -= Time.deltaTime;
+        if (scanTimer > 0f) return;
+        scanTimer = scanInterval;
 
-        Tower nearestOffPath = null;
-        Tower collidedOnPath = null;
+        Transform nearestOffPath = null;
+        Transform collidedOnPath = null;
         float bestDistance = detectionRadius;
 
-        for (int i = 0; i < cachedTowers.Length; i++)
+        // Memindai Objek Menggunakan OverlapSphere (Mencakup Tower, Barrack, & Soldier)
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRadius);
+
+        foreach (Collider col in hitColliders)
         {
-            Tower tower = cachedTowers[i];
-            if (tower == null) continue;
+            if (col == null || col.gameObject == gameObject) continue;
 
-            float distance = FlatDistance(transform.position, tower.transform.position);
+            // Cek apakah objek punya komponen HP (TowerHealth / Barrack / Soldier)
+            TowerHealth tHealth = col.GetComponentInParent<TowerHealth>();
+            Soldier soldier = col.GetComponentInParent<Soldier>();
 
-            if (!IsOnPath(tower.transform.position))
+            Transform targetTransform = null;
+            if (tHealth != null) targetTransform = tHealth.transform;
+            else if (soldier != null) targetTransform = soldier.transform;
+
+            if (targetTransform == null) continue;
+
+            float distance = FlatDistance(transform.position, targetTransform.position);
+
+            if (!IsOnPath(targetTransform.position))
             {
-                // Tower off-path dalam radius deteksi: kandidat target
                 if (distance <= bestDistance)
                 {
                     bestDistance = distance;
-                    nearestOffPath = tower;
+                    nearestOffPath = targetTransform;
                 }
             }
             else if (distance <= explodeDistance)
             {
-                // Menabrak tower yang berada di path
-                collidedOnPath = tower;
+                collidedOnPath = targetTransform;
             }
         }
 
-        // Prioritas: target off-path dulu. Hanya jika tidak ada, tabrakan on-path dihitung.
         if (nearestOffPath != null)
         {
             lockedTarget = nearestOffPath;
@@ -153,14 +153,13 @@ public class SkeletonBombAI : MonoBehaviour
 
     private void UpdateLock()
     {
-        // Target hilang (misalnya sudah hancur): kembali berlari di path
         if (lockedTarget == null)
         {
             ChangeState(State.Run);
             return;
         }
 
-        FaceTowards(lockedTarget.transform.position);
+        FaceTowards(lockedTarget.position);
 
         lockTimer -= Time.deltaTime;
         if (lockTimer <= 0f)
@@ -177,7 +176,7 @@ public class SkeletonBombAI : MonoBehaviour
             return;
         }
 
-        Vector3 toTarget = lockedTarget.transform.position - transform.position;
+        Vector3 toTarget = lockedTarget.position - transform.position;
         toTarget.y = 0f;
 
         if (toTarget.magnitude <= explodeDistance)
@@ -189,25 +188,37 @@ public class SkeletonBombAI : MonoBehaviour
 
         Vector3 direction = toTarget.normalized;
         transform.position += direction * chaseSpeed * Time.deltaTime;
-        FaceTowards(lockedTarget.transform.position);
+        FaceTowards(lockedTarget.position);
     }
 
+    /// <summary>
+    /// Ledakan Area (AoE) yang merusak semua Tower, Barrack, dan Soldier di sekitarnya.
+    /// </summary>
     private void Explode()
     {
-        if (lockedTarget != null)
+        // Deteksi Semua Objek di Dalam Radius Ledakan AoE
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, explosionRadius);
+
+        foreach (Collider col in hitColliders)
         {
-            TowerHealth towerHealth = lockedTarget.GetComponent<TowerHealth>();
-            if (towerHealth != null)
+            if (col == null) continue;
+
+            // Berikan Damage ke Tower & Barrack
+            TowerHealth tHealth = col.GetComponentInParent<TowerHealth>();
+            if (tHealth != null)
             {
-                towerHealth.TakeDamage(pendingDamage);
+                tHealth.TakeDamage(pendingDamage);
             }
-            else
+
+            // Berikan Damage ke Prajurit (Soldier)
+            Soldier soldier = col.GetComponentInParent<Soldier>();
+            if (soldier != null)
             {
-                Debug.LogWarning($"{lockedTarget.name} belum punya TowerHealth, damage tidak diberikan.");
+                soldier.TakeDamage(pendingDamage);
             }
         }
 
-        // Efek ledakan muncul di posisi skeleton, lalu hilang sendiri
+        // Efek Ledakan Visual
         if (explosionEffectPrefab != null)
         {
             GameObject fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
@@ -216,19 +227,6 @@ public class SkeletonBombAI : MonoBehaviour
         }
 
         Destroy(gameObject);
-    }
-
-    // ---------- Helpers ----------
-
-    private void RefreshTowerCache()
-    {
-        scanTimer -= Time.deltaTime;
-
-        if (cachedTowers == null || scanTimer <= 0f)
-        {
-            cachedTowers = FindObjectsByType<Tower>(FindObjectsSortMode.None);
-            scanTimer = scanInterval;
-        }
     }
 
     private bool IsOnPath(Vector3 position)
@@ -262,5 +260,9 @@ public class SkeletonBombAI : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explodeDistance);
+
+        // Lingkaran Oranye menunjukkan area ledakan AoE
+        Gizmos.color = new Color(1f, 0.5f, 0f);
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
     }
 }

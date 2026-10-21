@@ -1,29 +1,38 @@
 using UnityEngine;
 
+/// <summary>
+/// Tower dasar (Archer): menembak peluru homing ke musuh terdekat.
+/// CannonTower mewarisi script ini dan mengganti cara memilih target dan menembak.
+/// </summary>
 public class Tower : MonoBehaviour
 {
     [Header("Targeting & Attack")]
-    [SerializeField] private float range = 5f;
-    [SerializeField] private float fireRate = 1.5f; // Tembakan per detik
-    [SerializeField] private string enemyTag = "Enemy";
+    [SerializeField] protected float range = 5f;
+    [SerializeField] protected float fireRate = 1.5f; // Tembakan per detik
+    [SerializeField] protected float damage = 10f;
+    [SerializeField] protected string enemyTag = "Enemy";
 
     [Header("Tower Parts & Prefabs")]
     [Tooltip("Bagian atas turret yang berputar horizontal")]
-    [SerializeField] private Transform partToRotate;
+    [SerializeField] protected Transform partToRotate;
     [Tooltip("Titik keluarnya peluru")]
-    [SerializeField] private Transform firePoint;
-    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] protected Transform firePoint;
+    [SerializeField] protected GameObject bulletPrefab;
 
-    private Transform currentTarget;
+    protected Transform currentTarget;
     private float fireCountdown = 0f;
 
-    private void Start()
+    public float Range => range;
+    public float FireRate => fireRate;
+    public float Damage => damage;
+
+    protected virtual void Start()
     {
         // Jalankan pencarian target secara berkala (2 kali per detik) untuk efisiensi performa
         InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
     }
 
-    private void UpdateTarget()
+    protected virtual void UpdateTarget()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag(enemyTag);
         float shortestDistance = Mathf.Infinity;
@@ -52,7 +61,7 @@ public class Tower : MonoBehaviour
         }
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (currentTarget == null) return;
 
@@ -68,7 +77,7 @@ public class Tower : MonoBehaviour
         fireCountdown -= Time.deltaTime;
     }
 
-    private void LockOnTarget()
+    protected void LockOnTarget()
     {
         if (partToRotate == null || currentTarget == null) return;
 
@@ -84,21 +93,25 @@ public class Tower : MonoBehaviour
         }
     }
 
-    private void Shoot()
+    protected virtual void Shoot()
     {
-        if (bulletPrefab == null || firePoint == null || currentTarget == null) return;
+        if (bulletPrefab == null || currentTarget == null) return;
 
-        GameObject bulletObj = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        Vector3 spawnPos = firePoint != null ? firePoint.position : (transform.position + Vector3.up * 2.5f);
+        Quaternion spawnRot = firePoint != null ? firePoint.rotation : transform.rotation;
+
+        GameObject bulletObj = Instantiate(bulletPrefab, spawnPos, spawnRot);
         Projectile projectile = bulletObj.GetComponent<Projectile>();
 
         if (projectile != null)
         {
+            projectile.SetDamage(damage);
             projectile.Seek(currentTarget);
         }
     }
 
     // Menggambar radius tembak di Scene View
-    private void OnDrawGizmosSelected()
+    protected virtual void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, range);

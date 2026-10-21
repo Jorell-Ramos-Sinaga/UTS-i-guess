@@ -4464,7 +4464,7 @@ MonoBehaviour:
   startingGold: 100
   towerCost: 50
   baseHealth: 10
-  defaultTowerPrefab: {fileID: 5321057487474304220, guid: a361e3ef6c9ec124db57d49383f478e5, type: 3}
+  defaultTowerPrefab: {fileID: 7836756963640546891, guid: 56927e0173c2a884eb8139caaf79d2a8, type: 3}
 --- !u!4 &2137330582
 Transform:
   m_ObjectHideFlags: 0

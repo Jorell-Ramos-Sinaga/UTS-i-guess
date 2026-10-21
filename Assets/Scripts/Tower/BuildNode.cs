@@ -26,7 +26,7 @@ public class BuildNode : MonoBehaviour
 
         if (nodeRenderer != null)
         {
-            bool canAfford = GameManager.Instance.CanAffordTower();
+            bool canAfford = GameManager.Instance.CanAffordSelectedTower();
             nodeRenderer.material.color = canAfford ? hoverColor : notEnoughGoldColor;
         }
     }
@@ -41,22 +41,21 @@ public class BuildNode : MonoBehaviour
 
     private void OnMouseDown()
     {
-        // Cek apakah node sudah ada towernya
         if (currentTower != null)
         {
             Debug.Log("Node ini sudah memiliki Tower!");
             return;
         }
 
-        if (GameManager.Instance == null) return;
+        if (GameManager.Instance == null || !GameManager.Instance.HasSelectedTower) return;
 
-        // Cek apakah koin mencukupi
-        if (GameManager.Instance.BuyTower())
+        TowerData towerToBuild = GameManager.Instance.SelectedTower;
+
+        if (GameManager.Instance.BuySelectedTower())
         {
             Vector3 buildPosition = transform.position + Vector3.up * 0.5f;
-            currentTower = Instantiate(GameManager.Instance.GetTowerPrefab(), buildPosition, Quaternion.identity);
+            currentTower = Instantiate(towerToBuild.prefab, buildPosition, towerToBuild.prefab.transform.rotation);
 
-            // Reset warna node kembali normal
             if (nodeRenderer != null)
             {
                 nodeRenderer.material.color = startColor;
@@ -64,7 +63,7 @@ public class BuildNode : MonoBehaviour
         }
         else
         {
-            Debug.Log("Gold tidak mencukupi untuk membangun Tower!");
+            Debug.Log("Gold tidak mencukupi atau belum memilih jenis Tower!");
         }
     }
 }

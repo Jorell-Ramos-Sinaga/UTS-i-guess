@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 82c09a66d8e49fb4aa4c4c038f7d94c7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145437
+  packageName: Goblin & Cannon
+  packageVersion: 2.0
+  assetPath: Assets/TowerDefence_Vsquad/Materials/FX/HM_Fire_FX_main.mat
+  uploadId: 362303

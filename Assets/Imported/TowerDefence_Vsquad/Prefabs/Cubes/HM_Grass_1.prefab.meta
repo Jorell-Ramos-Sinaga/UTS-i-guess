@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 64ee9c9da5098a141940ff4801cc9550
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145437
+  packageName: Goblin & Cannon
+  packageVersion: 2.0
+  assetPath: Assets/TowerDefence_Vsquad/Prefabs/Cubes/HM_Grass_1.prefab
+  uploadId: 362303

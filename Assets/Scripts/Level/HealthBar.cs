@@ -1,10 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// HP bar yang melayang di atas objek. Cukup pasang di prefab yang punya
-/// EnemyHealth atau TowerHealth. Tidak perlu Canvas, prefab, atau material tambahan:
-/// bar dibuat lewat kode dari dua SpriteRenderer, lalu selalu menghadap kamera.
-/// </summary>
 public class HealthBar : MonoBehaviour
 {
     [Header("Ukuran (world units)")]
@@ -13,9 +8,7 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private float border = 0.03f;
 
     [Header("Posisi")]
-    [Tooltip("Jarak tambahan di atas bagian tertinggi model.")]
     [SerializeField] private float heightPadding = 0.4f;
-    [Tooltip("Geser bar ke arah atas layar. Penting untuk kamera dari atas (top-down), supaya bar tidak menumpuk di tengah model. Isi kira-kira setengah ukuran model + sedikit jarak.")]
     [SerializeField] private float screenUpOffset = 0.8f;
 
     [Header("Tampilan")]
@@ -26,6 +19,7 @@ public class HealthBar : MonoBehaviour
 
     private EnemyHealth enemyHealth;
     private TowerHealth towerHealth;
+    private Soldier soldier;
 
     private Transform barRoot;
     private Transform fillTransform;
@@ -39,10 +33,11 @@ public class HealthBar : MonoBehaviour
     {
         enemyHealth = GetComponent<EnemyHealth>();
         towerHealth = GetComponent<TowerHealth>();
+        soldier = GetComponent<Soldier>();
 
-        if (enemyHealth == null && towerHealth == null)
+        if (enemyHealth == null && towerHealth == null && soldier == null)
         {
-            Debug.LogWarning($"{name}: HealthBar butuh EnemyHealth atau TowerHealth di objek yang sama.");
+            Debug.LogWarning($"{name}: HealthBar butuh EnemyHealth, TowerHealth, atau Soldier.");
             enabled = false;
             return;
         }
@@ -61,11 +56,9 @@ public class HealthBar : MonoBehaviour
             if (cam == null) return;
         }
 
-        // Ikuti posisi objek tanpa mewarisi scale/rotasi, dan selalu menghadap kamera
         Vector3 p = transform.position;
         Vector3 position = new Vector3(p.x, p.y + yOffset, p.z);
 
-        // Makin curam kamera melihat ke bawah, makin besar geseran ke atas layar
         float lookDown = Mathf.Clamp01(-cam.transform.forward.y);
         position += cam.transform.up * (screenUpOffset * lookDown);
 
@@ -95,10 +88,10 @@ public class HealthBar : MonoBehaviour
     {
         if (enemyHealth != null) return enemyHealth.HealthPercent;
         if (towerHealth != null) return towerHealth.HealthPercent;
+        if (soldier != null) return soldier.HealthPercent;
         return 1f;
     }
 
-    // Hitung tinggi bagian paling atas model, supaya bar tidak menembus model
     private float CalculateHeightOffset()
     {
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
@@ -129,12 +122,10 @@ public class HealthBar : MonoBehaviour
     {
         barRoot = new GameObject(name + "_HealthBar").transform;
 
-        // Background (sedikit lebih besar dari fill, sebagai bingkai)
         SpriteRenderer bg = CreateSpriteObject("Background", backgroundColor, 100);
         bg.transform.localScale = new Vector3(width + border * 2f, height + border * 2f, 1f);
         bg.transform.localPosition = new Vector3(-width / 2f - border, 0f, 0f);
 
-        // Fill (pivot di kiri, jadi mengecil dari kanan ke kiri)
         fillRenderer = CreateSpriteObject("Fill", fullColor, 101);
         fillTransform = fillRenderer.transform;
         fillTransform.localScale = new Vector3(width, height, 1f);
@@ -153,7 +144,6 @@ public class HealthBar : MonoBehaviour
         return sr;
     }
 
-    // Sprite putih 1x1 unit dengan pivot di kiri-tengah, dipakai bersama oleh semua bar
     private static Sprite GetWhiteSprite()
     {
         if (whiteSprite == null)
