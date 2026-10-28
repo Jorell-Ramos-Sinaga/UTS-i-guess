@@ -20,6 +20,12 @@ public class GameManager : MonoBehaviour
     [Header("Daftar Tower")]
     [SerializeField] private TowerData[] availableTowers;
 
+    [Header("Audio")]
+    [Tooltip("Suara saat monster berhasil masuk ke base. Boleh dikosongkan.")]
+    [SerializeField] private AudioClip baseHitSound;
+    [Range(0f, 1f)]
+    [SerializeField] private float baseHitVolume = 0.8f;
+
     public int CurrentGold { get; private set; }
     public int CurrentBaseHealth { get; private set; }
     public bool IsGameOver { get; private set; }
@@ -96,6 +102,7 @@ public class GameManager : MonoBehaviour
         if (GameEnded) return;
 
         CurrentBaseHealth -= amount;
+        Sfx.Play(baseHitSound, baseHitVolume);
 
         if (CurrentBaseHealth <= 0)
         {

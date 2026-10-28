@@ -132,6 +132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
   speed: 8
   reachDistanceThreshold: 0.2
+  groundHeightY: 1.1
 --- !u!114 &202401588444206735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,8 +167,9 @@ MonoBehaviour:
   lockDuration: 0.25
   chaseSpeed: 9
   explodeDistance: 0.8
-  offPathDamage: 30
-  onPathDamage: 40
+  explosionRadius: 2.5
+  offPathDamage: 50
+  onPathDamage: 50
   explosionEffectPrefab: {fileID: 6358712822364338987, guid: 057b05aea967b1b4faaed1c89234ac8e, type: 3}
   explosionEffectScale: 1
   explosionEffectLifetime: 3
@@ -189,7 +191,7 @@ MonoBehaviour:
   border: 0.03
   heightPadding: 0.4
   screenUpOffset: 0.8
-  hideWhenFull: 0
+  hideWhenFull: 1
   fullColor: {r: 0, g: 1, b: 0, a: 1}
   lowColor: {r: 1, g: 0, b: 0, a: 1}
   backgroundColor: {r: 0, g: 0, b: 0, a: 0.7}

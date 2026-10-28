@@ -27,6 +27,16 @@ public class Soldier : MonoBehaviour
 
     // Properti agar HealthBar bisa membaca persentase HP Soldier
     public float HealthPercent => maxHealth > 0f ? Mathf.Clamp01(currentHealth / maxHealth) : 0f;
+    public float CurrentHealth => currentHealth;
+    public float MaxHealth => maxHealth;
+    public Transform CurrentEnemyTarget => currentEnemyTarget;
+    public BarrackTower HomeBarrack => homeBarrack;
+    public Vector3 TargetRallySpot => targetRallySpot;
+    public string CurrentAnimState => currentAnimState;
+    public float Damage => damage;
+    public float AttackRate => attackRate;
+    public float BlockRadius => blockRadius;
+    public float MoveSpeed => moveSpeed;
 
     public void Setup(BarrackTower barrack, Vector3 rallySpot, float hp, float dmg, float rate)
     {
@@ -152,6 +162,16 @@ public class Soldier : MonoBehaviour
         {
             UnblockEnemy();
         }
+    }
+
+    public void Heal(float amount)
+    {
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+    }
+
+    public void Kill()
+    {
+        TakeDamage(currentHealth > 0 ? currentHealth : 9999f);
     }
 
     public void TakeDamage(float amount)

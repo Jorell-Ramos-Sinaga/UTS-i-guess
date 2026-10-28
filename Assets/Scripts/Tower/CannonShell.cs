@@ -19,6 +19,12 @@ public class CannonShell : MonoBehaviour
     [SerializeField] private float explosionEffectScale = 1f;
     [SerializeField] private float explosionEffectLifetime = 3f;
 
+    [Header("Audio")]
+    [Tooltip("Suara ledakan saat peluru mendarat. Boleh dikosongkan.")]
+    [SerializeField] private AudioClip explosionSound;
+    [Range(0f, 1f)]
+    [SerializeField] private float explosionVolume = 0.8f;
+
     private Vector3 startPosition;
     private Vector3 targetPosition;
     private float damage;
@@ -97,6 +103,8 @@ public class CannonShell : MonoBehaviour
             fx.transform.localScale *= explosionEffectScale;
             Destroy(fx, explosionEffectLifetime);
         }
+
+        Sfx.Play(explosionSound, explosionVolume, 0.05f);
 
         Destroy(gameObject);
     }

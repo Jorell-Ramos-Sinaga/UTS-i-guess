@@ -164,7 +164,7 @@ MonoBehaviour:
   border: 0.03
   heightPadding: 0.4
   screenUpOffset: 0.8
-  hideWhenFull: 0
+  hideWhenFull: 1
   fullColor: {r: 0, g: 1, b: 0, a: 1}
   lowColor: {r: 1, g: 0, b: 0, a: 1}
   backgroundColor: {r: 0, g: 0, b: 0, a: 0.7}

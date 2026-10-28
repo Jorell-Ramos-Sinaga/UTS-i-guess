@@ -41,6 +41,18 @@ public class SkeletonBombAI : MonoBehaviour
     private float lockTimer;
     private float pendingDamage;
 
+    public string CurrentStateName => currentState.ToString();
+    public Transform LockedTarget => lockedTarget;
+    public float DetectionRadius => detectionRadius;
+    public float ExplosionRadius => explosionRadius;
+    public float ExplodeDistance => explodeDistance;
+    public float ScanTimer => scanTimer;
+    public float ScanInterval => scanInterval;
+    public float LockTimer => lockTimer;
+    public float LockDuration => lockDuration;
+    public float PendingDamage => pendingDamage;
+    public float ChaseSpeed => chaseSpeed;
+
     private void Start()
     {
         movement = GetComponent<EnemyMovement>();

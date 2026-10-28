@@ -7,6 +7,10 @@ public class BuildNode : MonoBehaviour
     [SerializeField] private Color hoverColor = Color.green;
     [SerializeField] private Color notEnoughGoldColor = Color.red;
 
+    [Header("Placement Offset")]
+    [Tooltip("Ketinggian posisi spawn tower relatif terhadap posisi node (default: 0.43).")]
+    [SerializeField] private float towerOffsetY = 0.43f;
+
     private GameObject currentTower;
     private Renderer nodeRenderer;
     private Color startColor;
@@ -41,6 +45,12 @@ public class BuildNode : MonoBehaviour
 
     private void OnMouseDown()
     {
+        // Cegah membangun tower jika sedang mengklik NPC di mode AI Debug
+        if (AIDebugPanel.Instance != null && AIDebugPanel.Instance.WasNpcClickedThisFrame)
+        {
+            return;
+        }
+
         if (currentTower != null)
         {
             Debug.Log("Node ini sudah memiliki Tower!");
@@ -53,7 +63,7 @@ public class BuildNode : MonoBehaviour
 
         if (GameManager.Instance.BuySelectedTower())
         {
-            Vector3 buildPosition = transform.position + Vector3.up * 0.5f;
+            Vector3 buildPosition = transform.position + Vector3.up * towerOffsetY;
             currentTower = Instantiate(towerToBuild.prefab, buildPosition, towerToBuild.prefab.transform.rotation);
 
             if (nodeRenderer != null)

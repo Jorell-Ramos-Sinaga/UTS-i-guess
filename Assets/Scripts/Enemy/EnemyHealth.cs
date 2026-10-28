@@ -61,6 +61,13 @@ public class EnemyHealth : MonoBehaviour
         return currentHealth - before;
     }
  
+    public void Kill()
+    {
+        if (isDead) return;
+        currentHealth = 0f;
+        Die();
+    }
+
     private void Die()
     {
         isDead = true;

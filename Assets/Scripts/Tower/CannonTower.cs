@@ -37,6 +37,7 @@ public class CannonTower : Tower
         }
 
         shell.Launch(rememberedPoint, damage, splashRadius);
+        Sfx.Play(shootSound, shootVolume, 0.05f);
     }
 
     private Transform ChooseTarget()

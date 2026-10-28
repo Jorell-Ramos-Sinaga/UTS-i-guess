@@ -6,12 +6,17 @@ public class EnemyMovement : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float speed = 4f;
     [SerializeField] private float reachDistanceThreshold = 0.2f;
+    [Tooltip("Ketinggian Y musuh saat berjalan (default: 0.55).")]
+    [SerializeField] private float groundHeightY = 0.55f;
 
     private Transform[] waypoints;
     private int currentWaypointIndex = 0;
 
     // Dibaca oleh AI (misalnya Skeleton Bomb) untuk mengetahui jalur yang sedang dipakai
     public Transform[] Waypoints => waypoints;
+    public float Speed => speed;
+    public int CurrentWaypointIndex => currentWaypointIndex;
+    public int TotalWaypoints => waypoints != null ? waypoints.Length : 0;
 
     // Sisa jarak menuju base sepanjang path. Makin kecil = makin di depan.
     public float RemainingDistance
@@ -33,14 +38,18 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-    public void SetupPath(Transform[] pathPoints)
+    public void SetupPath(Transform[] pathPoints, float customHeightY = -999f)
     {
+        if (customHeightY > -900f) groundHeightY = customHeightY;
+
         waypoints = pathPoints;
         currentWaypointIndex = 0;
 
         if (waypoints != null && waypoints.Length > 0 && waypoints[0] != null)
         {
-            transform.position = waypoints[0].position;
+            Vector3 startPos = waypoints[0].position;
+            startPos.y = groundHeightY;
+            transform.position = startPos;
         }
     }
 
@@ -52,19 +61,31 @@ public class EnemyMovement : MonoBehaviour
         Transform targetPoint = waypoints[currentWaypointIndex];
         if (targetPoint == null) return;
 
+        Vector3 targetPos = targetPoint.position;
+        targetPos.y = groundHeightY;
+
         // Hitung arah gerak
-        Vector3 direction = (targetPoint.position - transform.position).normalized;
+        Vector3 direction = (targetPos - transform.position).normalized;
         transform.position += direction * speed * Time.deltaTime;
+
+        // Pastikan posisi Y tetap di groundHeightY
+        Vector3 currentPos = transform.position;
+        currentPos.y = groundHeightY;
+        transform.position = currentPos;
 
         // Rotasi musuh menghadap arah jalan
         if (direction != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+            direction.y = 0f;
+            if (direction.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+            }
         }
 
         // Cek apakah sudah dekat dengan target waypoint saat ini
-        float distance = Vector3.Distance(transform.position, targetPoint.position);
+        float distance = Vector3.Distance(transform.position, targetPos);
         if (distance <= reachDistanceThreshold)
         {
             currentWaypointIndex++;

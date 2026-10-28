@@ -43,6 +43,8 @@ public class WaveSpawner : MonoBehaviour
     [Header("Wave Settings")]
     [SerializeField] private float startDelay = 2f;
     [SerializeField] private float timeBetweenWaves = 5.0f;
+    [Tooltip("Tinggi posisi Y saat musuh di-spawn (default: 0.55 agar menempel di tanah).")]
+    [SerializeField] private float spawnHeightY = 0.55f;
     [SerializeField] private WaveData[] waves;
 
     private int currentWaveIndex = 0;
@@ -161,12 +163,15 @@ public class WaveSpawner : MonoBehaviour
         Transform spawnPoint = chosenPath.points[0];
         if (spawnPoint == null) return;
 
-        GameObject enemyObj = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+        Vector3 spawnPos = spawnPoint.position;
+        spawnPos.y = spawnHeightY;
+
+        GameObject enemyObj = Instantiate(enemyPrefab, spawnPos, spawnPoint.rotation);
 
         EnemyMovement movement = enemyObj.GetComponent<EnemyMovement>();
         if (movement != null)
         {
-            movement.SetupPath(chosenPath.points);
+            movement.SetupPath(chosenPath.points, spawnHeightY);
         }
     }
 

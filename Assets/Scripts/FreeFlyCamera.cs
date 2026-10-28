@@ -116,6 +116,28 @@ public class FreeFlyCamera : MonoBehaviour
 
     private void HandleZoom()
     {
+        // 1. Zoom dengan Tombol Keyboard: F (Zoom In) & V (Zoom Out)
+        float zoomDir = 0f;
+
+#if ENABLE_INPUT_SYSTEM
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.fKey.isPressed) zoomDir += 1f;
+            if (Keyboard.current.vKey.isPressed) zoomDir -= 1f;
+        }
+#else
+        if (Input.GetKey(KeyCode.F)) zoomDir += 1f;
+        if (Input.GetKey(KeyCode.V)) zoomDir -= 1f;
+#endif
+
+        float keySpeed = IsShiftHeld() ? fastSpeed * 1.5f : normalSpeed * 1.2f;
+
+        if (Mathf.Abs(zoomDir) > 0.01f)
+        {
+            transform.position += transform.forward * zoomDir * keySpeed * Time.unscaledDeltaTime;
+        }
+
+        // 2. Alternatif via Mouse Scroll Wheel
         float scroll = 0f;
 
 #if ENABLE_INPUT_SYSTEM
@@ -129,7 +151,8 @@ public class FreeFlyCamera : MonoBehaviour
 
         if (Mathf.Abs(scroll) > 0.01f)
         {
-            transform.position += transform.forward * scroll * zoomSpeed;
+            float currentZoomSpeed = IsShiftHeld() ? zoomSpeed * 2.5f : zoomSpeed;
+            transform.position += transform.forward * scroll * currentZoomSpeed;
         }
     }
 

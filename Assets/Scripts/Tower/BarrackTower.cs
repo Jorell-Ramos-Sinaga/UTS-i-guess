@@ -3,6 +3,12 @@ using UnityEngine;
 
 public class BarrackTower : MonoBehaviour
 {
+    [Header("Placement Alignment")]
+    [Tooltip("Jika dicentang, ketinggian Barrack otomatis diselaraskan ke groundHeightY saat spawn.")]
+    [SerializeField] private bool alignGroundHeight = true;
+    [Tooltip("Tinggi target permukaan tanah untuk Barrack (default: 0.43).")]
+    [SerializeField] private float groundHeightY = 0.43f;
+
     [Header("Barrack Settings")]
     [SerializeField] private GameObject soldierPrefab;
     [SerializeField] private int maxSoldiers = 3;
@@ -23,6 +29,14 @@ public class BarrackTower : MonoBehaviour
 
     private void Start()
     {
+        // Selaraskan Y ke permukaan tanah saat spawn
+        if (alignGroundHeight)
+        {
+            Vector3 pos = transform.position;
+            pos.y = groundHeightY;
+            transform.position = pos;
+        }
+
         SetRallyPointToNearestPath();
         FaceTowardsPath(); // Otomatis rotasi bangunan Barrack ke arah jalan
     }

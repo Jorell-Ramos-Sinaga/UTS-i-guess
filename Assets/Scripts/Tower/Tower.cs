@@ -6,6 +6,12 @@ using UnityEngine;
 /// </summary>
 public class Tower : MonoBehaviour
 {
+    [Header("Placement Alignment")]
+    [Tooltip("Jika dicentang, ketinggian Tower otomatis diselaraskan ke groundHeightY saat spawn.")]
+    [SerializeField] protected bool alignGroundHeight = true;
+    [Tooltip("Tinggi target permukaan tanah untuk Tower (default: 0.43).")]
+    [SerializeField] protected float groundHeightY = 0.43f;
+
     [Header("Targeting & Attack")]
     [SerializeField] protected float range = 5f;
     [SerializeField] protected float fireRate = 1.5f; // Tembakan per detik
@@ -19,6 +25,12 @@ public class Tower : MonoBehaviour
     [SerializeField] protected Transform firePoint;
     [SerializeField] protected GameObject bulletPrefab;
 
+    [Header("Audio")]
+    [Tooltip("Suara saat menembak. Boleh dikosongkan.")]
+    [SerializeField] protected AudioClip shootSound;
+    [Range(0f, 1f)]
+    [SerializeField] protected float shootVolume = 0.6f;
+
     protected Transform currentTarget;
     private float fireCountdown = 0f;
 
@@ -28,6 +40,13 @@ public class Tower : MonoBehaviour
 
     protected virtual void Start()
     {
+        if (alignGroundHeight)
+        {
+            Vector3 pos = transform.position;
+            pos.y = groundHeightY;
+            transform.position = pos;
+        }
+
         // Jalankan pencarian target secara berkala (2 kali per detik) untuk efisiensi performa
         InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
     }
@@ -101,6 +120,7 @@ public class Tower : MonoBehaviour
         Quaternion spawnRot = firePoint != null ? firePoint.rotation : transform.rotation;
 
         GameObject bulletObj = Instantiate(bulletPrefab, spawnPos, spawnRot);
+        Sfx.Play(shootSound, shootVolume, 0.08f);
         Projectile projectile = bulletObj.GetComponent<Projectile>();
 
         if (projectile != null)

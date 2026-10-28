@@ -63,8 +63,27 @@ public class TombWardenAI : MonoBehaviour
 
     // Skor terakhir (untuk Debug atau UI)
     private float lastHealScore, lastHoldScore, lastAdvanceScore;
+    private int lastInjuredCount;
+    private float lastWorstMissing;
+    private int lastGroupCount;
+    private float lastAhead;
+    private float lastLagging;
 
     public string CurrentActionName => currentAction.ToString();
+    public float LastHealScore => lastHealScore;
+    public float LastHoldScore => lastHoldScore;
+    public float LastAdvanceScore => lastAdvanceScore;
+    public int LastInjuredCount => lastInjuredCount;
+    public float LastWorstMissing => lastWorstMissing;
+    public int LastGroupCount => lastGroupCount;
+    public float LastAhead => lastAhead;
+    public float LastLagging => lastLagging;
+    public float HealRadius => healRadius;
+    public float GroupRadius => groupRadius;
+    public float HealInterval => healInterval;
+    public float HealTimer => healTimer;
+    public float ThinkInterval => thinkInterval;
+    public float ThinkTimer => thinkTimer;
 
     private void Start()
     {
@@ -141,11 +160,12 @@ public class TombWardenAI : MonoBehaviour
 
         float holdScore = 0f;
         float lagging = 0f;
+        float ahead = 0f;
         if (groupCount > 0)
         {
             float groupAvgRemaining = groupRemainingSum / groupCount;
             // Remaining kecil = sudah lebih dekat ke base = lebih di depan
-            float ahead = Mathf.Clamp01((groupAvgRemaining - myRemaining) / maxAheadDistance);
+            ahead = Mathf.Clamp01((groupAvgRemaining - myRemaining) / maxAheadDistance);
             lagging = Mathf.Clamp01((myRemaining - groupAvgRemaining) / maxAheadDistance);
             holdScore = holdWeight * ahead;
         }
@@ -163,6 +183,11 @@ public class TombWardenAI : MonoBehaviour
         lastHealScore = healScore;
         lastHoldScore = holdScore;
         lastAdvanceScore = advanceScore;
+        lastInjuredCount = injuredCount;
+        lastWorstMissing = worstMissing;
+        lastGroupCount = groupCount;
+        lastAhead = ahead;
+        lastLagging = lagging;
 
         // --- Pilih aksi dengan skor tertinggi ---
         WardenAction best = WardenAction.Advance;

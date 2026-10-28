@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 3723087884757015239}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.089, y: 0.123, z: -0.014}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -53,15 +53,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21648938f69d1c74485eff090e5c4a95, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.435732
+      value: -6.5667143
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21648938f69d1c74485eff090e5c4a95, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.15182644
+      value: 0.1518261
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21648938f69d1c74485eff090e5c4a95, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.8654716
+      value: -5.8772955
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21648938f69d1c74485eff090e5c4a95, type: 3}
       propertyPath: m_LocalRotation.w
@@ -134,13 +134,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adf64f9ee5c20e843bb008bf458bc21d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tower
+  alignGroundHeight: 1
+  groundHeightY: 0.43
   range: 10
   fireRate: 2
   damage: 10
   enemyTag: Enemy
   partToRotate: {fileID: 0}
-  firePoint: {fileID: 6376596187593746059}
+  firePoint: {fileID: 0}
   bulletPrefab: {fileID: 276091692883054501, guid: 874b9c49a81b70643907770f8df979da, type: 3}
+  shootSound: {fileID: 8300000, guid: 8460daaab3e29f747a165b4b7eb51bf5, type: 3}
+  shootVolume: 0.6
 --- !u!114 &5970531613763409508
 MonoBehaviour:
   m_ObjectHideFlags: 0
