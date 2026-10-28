@@ -2,12 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>Satu jenis monster dalam sebuah wave (prefab + jumlahnya).</summary>
+public enum PathSelectionType
+{
+    AutoPerception, // Otomatis memilih jalur paling aman lewat PathPerception
+    Path1Only,      // Selalu lewat Path 1
+    Path2Only,      // Selalu lewat Path 2
+    RandomPath      // Acak 50:50 antara Path 1 dan Path 2
+}
+
+/// <summary>Satu jenis monster dalam sebuah wave (prefab + jumlahnya + jalur yang dipilih).</summary>
 [System.Serializable]
 public class EnemySpawnEntry
 {
     public GameObject enemyPrefab;
     [Min(1)] public int count = 1;
+    [Tooltip("Pilih jalur mana yang akan dilewati jenis musuh ini.")]
+    public PathSelectionType pathOption = PathSelectionType.AutoPerception;
 }
 
 /// <summary>Satu wave: daftar monster yang akan muncul.</summary>
@@ -17,20 +27,17 @@ public class WaveData
     public string waveName = "Wave";
     public EnemySpawnEntry[] enemies;
     [Min(0.05f)] public float timeBetweenEnemies = 1.0f;
-    [Tooltip("Centang untuk mengacak urutan muncul. Kalau tidak, monster muncul berurutan sesuai daftar.")]
     public bool shuffleOrder = false;
 }
 
 public class WaveSpawner : MonoBehaviour
 {
-    [Header("Referensi")]
-    [SerializeField] private WaypointPath waypointPath;
-    [Tooltip("Jalur kedua menuju base. Kosongkan jika map hanya punya 1 path.")]
-    [SerializeField] private WaypointPath alternatePath;
+    [Header("Referensi Path")]
+    [SerializeField] private WaypointPath waypointPath;   // Path 1
+    [SerializeField] private WaypointPath alternatePath;  // Path 2
 
     [Header("Path Perception")]
     [SerializeField] private bool useTowerPerception = true;
-    [Tooltip("Tower dalam jarak ini dari garis path dihitung sebagai ancaman di jalur tersebut.")]
     [SerializeField] private float perceptionRadius = 7f;
 
     [Header("Wave Settings")]
@@ -41,7 +48,6 @@ public class WaveSpawner : MonoBehaviour
     private int currentWaveIndex = 0;
     private bool isSpawning = false;
 
-    // Dibaca oleh GameUI. CurrentWave = jumlah wave yang sudah dimulai (0 sebelum wave pertama).
     public int CurrentWave => currentWaveIndex;
     public int TotalWaves => waves != null ? waves.Length : 0;
 
@@ -56,7 +62,7 @@ public class WaveSpawner : MonoBehaviour
         StartCoroutine(SpawnAllWavesRoutine());
     }
 
-    private IEnumerator SpawnAllWavesRoutine()
+    private System.Collections.IEnumerator SpawnAllWavesRoutine()
     {
         yield return new WaitForSeconds(startDelay);
 
@@ -70,16 +76,12 @@ public class WaveSpawner : MonoBehaviour
 
             yield return StartCoroutine(SpawnWaveRoutine(wave));
 
-            // Jeda antar wave (tidak perlu setelah wave terakhir)
             if (currentWaveIndex < waves.Length)
             {
                 yield return new WaitForSeconds(timeBetweenWaves);
             }
         }
 
-        Debug.Log("Semua wave telah dimunculkan! Menunggu semua monster dikalahkan...");
-
-        // Menang jika semua monster sudah habis dan base masih hidup
         while (FindObjectsByType<EnemyHealth>(FindObjectsSortMode.None).Length > 0)
         {
             if (IsGameEnded()) yield break;
@@ -97,27 +99,32 @@ public class WaveSpawner : MonoBehaviour
         return GameManager.Instance != null && GameManager.Instance.GameEnded;
     }
 
-    private IEnumerator SpawnWaveRoutine(WaveData wave)
+    private System.Collections.IEnumerator SpawnWaveRoutine(WaveData wave)
     {
         isSpawning = true;
 
-        List<GameObject> spawnQueue = BuildSpawnQueue(wave);
+        List<EnemySpawnEntryData> spawnQueue = BuildSpawnQueue(wave);
 
         for (int i = 0; i < spawnQueue.Count; i++)
         {
             if (IsGameEnded()) break;
 
-            SpawnEnemy(spawnQueue[i]);
+            SpawnEnemy(spawnQueue[i].prefab, spawnQueue[i].pathOption);
             yield return new WaitForSeconds(wave.timeBetweenEnemies);
         }
 
         isSpawning = false;
     }
 
-    // Ubah daftar (prefab + jumlah) menjadi satu antrean spawn
-    private List<GameObject> BuildSpawnQueue(WaveData wave)
+    private struct EnemySpawnEntryData
     {
-        List<GameObject> queue = new List<GameObject>();
+        public GameObject prefab;
+        public PathSelectionType pathOption;
+    }
+
+    private List<EnemySpawnEntryData> BuildSpawnQueue(WaveData wave)
+    {
+        List<EnemySpawnEntryData> queue = new List<EnemySpawnEntryData>();
         if (wave.enemies == null) return queue;
 
         foreach (EnemySpawnEntry entry in wave.enemies)
@@ -126,13 +133,16 @@ public class WaveSpawner : MonoBehaviour
 
             for (int i = 0; i < entry.count; i++)
             {
-                queue.Add(entry.enemyPrefab);
+                queue.Add(new EnemySpawnEntryData
+                {
+                    prefab = entry.enemyPrefab,
+                    pathOption = entry.pathOption
+                });
             }
         }
 
         if (wave.shuffleOrder)
         {
-            // Fisher-Yates shuffle
             for (int i = queue.Count - 1; i > 0; i--)
             {
                 int j = Random.Range(0, i + 1);
@@ -143,9 +153,9 @@ public class WaveSpawner : MonoBehaviour
         return queue;
     }
 
-    private void SpawnEnemy(GameObject enemyPrefab)
+    private void SpawnEnemy(GameObject enemyPrefab, PathSelectionType pathOption)
     {
-        WaypointPath chosenPath = ChoosePath();
+        WaypointPath chosenPath = ChoosePathByOption(pathOption);
         if (enemyPrefab == null || chosenPath == null || chosenPath.points == null || chosenPath.points.Length == 0) return;
 
         Transform spawnPoint = chosenPath.points[0];
@@ -160,19 +170,27 @@ public class WaveSpawner : MonoBehaviour
         }
     }
 
-    private WaypointPath ChoosePath()
+    private WaypointPath ChoosePathByOption(PathSelectionType pathOption)
     {
-        if (!useTowerPerception || alternatePath == null)
+        switch (pathOption)
         {
-            return waypointPath;
+            case PathSelectionType.Path1Only:
+                return waypointPath;
+
+            case PathSelectionType.Path2Only:
+                return alternatePath != null ? alternatePath : waypointPath;
+
+            case PathSelectionType.RandomPath:
+                if (alternatePath == null) return waypointPath;
+                return Random.value < 0.5f ? waypointPath : alternatePath;
+
+            case PathSelectionType.AutoPerception:
+            default:
+                if (!useTowerPerception || alternatePath == null)
+                {
+                    return waypointPath;
+                }
+                return PathPerception.ChooseSaferPath(waypointPath, alternatePath, perceptionRadius);
         }
-
-        WaypointPath saferPath = PathPerception.ChooseSaferPath(waypointPath, alternatePath, perceptionRadius);
-
-        int threatA = PathPerception.CountTowersNearPath(waypointPath, perceptionRadius);
-        int threatB = PathPerception.CountTowersNearPath(alternatePath, perceptionRadius);
-        Debug.Log($"Enemy perception: Path1 towers={threatA}, Path2 towers={threatB}, pilih {(saferPath == waypointPath ? "Path 1" : "Path 2")}");
-
-        return saferPath;
     }
 }

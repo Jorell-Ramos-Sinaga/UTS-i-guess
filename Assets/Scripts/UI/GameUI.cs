@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameUI : MonoBehaviour
 {
     [Tooltip("Boleh dikosongkan, akan dicari otomatis.")]
     [SerializeField] private WaveSpawner waveSpawner;
+    [SerializeField] private string mainMenuSceneName = "MainMenuScene"; // Nama Scene Main Menu
 
     private GUIStyle hudStyle;
     private GUIStyle titleStyle;
@@ -12,11 +14,22 @@ public class GameUI : MonoBehaviour
     private GUIStyle sidebarStyle;
     private int baseFontSize;
 
+    private bool isPaused = false;
+
     private void Start()
     {
         if (waveSpawner == null)
         {
             waveSpawner = FindFirstObjectByType<WaveSpawner>();
+        }
+    }
+
+    private void Update()
+    {
+        // Tekan ESC untuk Toggle Pause Menu
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            TogglePause();
         }
     }
 
@@ -29,6 +42,13 @@ public class GameUI : MonoBehaviour
         DrawHud(gm);
         DrawSideBar(gm);
 
+        // Layar Pause
+        if (isPaused && !gm.GameEnded)
+        {
+            DrawPauseScreen();
+        }
+
+        // Layar Game Over / Victory
         if (gm.GameEnded)
         {
             DrawEndScreen(gm);
@@ -109,18 +129,16 @@ public class GameUI : MonoBehaviour
         if (towers == null || towers.Length == 0) return;
 
         float panelWidth = Screen.width * 0.2f;
-        float panelHeight = Screen.height * 0.5f;
+        float panelHeight = Screen.height * 0.55f;
         float panelX = Screen.width - panelWidth - 10f;
         float panelY = 10f;
 
         Rect sidebarPanel = new Rect(panelX, panelY, panelWidth, panelHeight);
 
-        // Latar belakang Side Bar
         GUI.color = new Color(0f, 0f, 0f, 0.65f);
         GUI.DrawTexture(sidebarPanel, Texture2D.whiteTexture);
         GUI.color = Color.white;
 
-        // Judul Side Bar
         Rect titleRect = new Rect(panelX, panelY + 10f, panelWidth, baseFontSize * 1.5f);
         GUI.Label(titleRect, "PILIH TOWER", sidebarStyle);
 
@@ -134,7 +152,6 @@ public class GameUI : MonoBehaviour
             bool isSelected = gm.HasSelectedTower && gm.SelectedTower.prefab == t.prefab;
             string label = $"{t.towerName}\n({t.cost} Gold)";
 
-            // Highlight jika tower sedang dipilih
             GUI.color = isSelected ? Color.green : Color.white;
 
             Rect btnRect = new Rect(panelX + 10f, buttonY + i * (buttonHeight + 10f), buttonWidth, buttonHeight);
@@ -148,6 +165,38 @@ public class GameUI : MonoBehaviour
         GUI.color = Color.white;
     }
 
+    private void TogglePause()
+    {
+        isPaused = !isPaused;
+        Time.timeScale = isPaused ? 0f : 1f;
+    }
+
+    private void DrawPauseScreen()
+    {
+        GUI.color = new Color(0f, 0f, 0f, 0.65f);
+        GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
+        GUI.color = Color.white;
+
+        GUI.Label(new Rect(0f, Screen.height * 0.25f, Screen.width, baseFontSize * 3f), "GAME PAUSED", titleStyle);
+
+        float buttonWidth = Screen.height * 0.45f;
+        float buttonHeight = baseFontSize * 2.6f;
+        float startY = Screen.height * 0.45f;
+
+        // Tombol Resume
+        if (GUI.Button(new Rect((Screen.width - buttonWidth) / 2f, startY, buttonWidth, buttonHeight), "Resume", buttonStyle))
+        {
+            TogglePause();
+        }
+
+        // Tombol Main Menu
+        if (GUI.Button(new Rect((Screen.width - buttonWidth) / 2f, startY + buttonHeight + 15f, buttonWidth, buttonHeight), "Main Menu", buttonStyle))
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(mainMenuSceneName);
+        }
+    }
+
     private void DrawEndScreen(GameManager gm)
     {
         GUI.color = new Color(0f, 0f, 0f, 0.65f);
@@ -158,30 +207,30 @@ public class GameUI : MonoBehaviour
 
         titleStyle.normal.textColor = victory ? new Color(0.4f, 1f, 0.5f) : new Color(1f, 0.35f, 0.35f);
         float titleHeight = baseFontSize * 4f;
-        GUI.Label(new Rect(0f, Screen.height * 0.22f, Screen.width, titleHeight),
+        GUI.Label(new Rect(0f, Screen.height * 0.2f, Screen.width, titleHeight),
                   victory ? "VICTORY!" : "GAME OVER", titleStyle);
 
-        string subtitle;
-        if (victory)
-        {
-            subtitle = "Semua wave berhasil dipertahankan!";
-        }
-        else
-        {
-            int totalWaves = waveSpawner != null ? waveSpawner.TotalWaves : 0;
-            int currentWave = waveSpawner != null ? waveSpawner.CurrentWave : 0;
-            subtitle = $"Base hancur di wave {currentWave}/{totalWaves}";
-        }
+        string subtitle = victory
+            ? "Semua wave berhasil dipertahankan!"
+            : $"Base hancur di wave {(waveSpawner != null ? waveSpawner.CurrentWave : 0)}/{(waveSpawner != null ? waveSpawner.TotalWaves : 0)}";
 
-        GUI.Label(new Rect(0f, Screen.height * 0.22f + titleHeight, Screen.width, baseFontSize * 2f), subtitle, subtitleStyle);
+        GUI.Label(new Rect(0f, Screen.height * 0.2f + titleHeight, Screen.width, baseFontSize * 2f), subtitle, subtitleStyle);
 
         float buttonWidth = Screen.height * 0.45f;
         float buttonHeight = baseFontSize * 2.6f;
-        Rect buttonRect = new Rect((Screen.width - buttonWidth) / 2f, Screen.height * 0.6f, buttonWidth, buttonHeight);
+        float startY = Screen.height * 0.55f;
 
-        if (GUI.Button(buttonRect, "Restart", buttonStyle))
+        // Tombol Restart
+        if (GUI.Button(new Rect((Screen.width - buttonWidth) / 2f, startY, buttonWidth, buttonHeight), "Restart", buttonStyle))
         {
             gm.RestartLevel();
+        }
+
+        // Tombol Main Menu pada Layar Game Over/Victory
+        if (GUI.Button(new Rect((Screen.width - buttonWidth) / 2f, startY + buttonHeight + 15f, buttonWidth, buttonHeight), "Main Menu", buttonStyle))
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(mainMenuSceneName);
         }
     }
 }
