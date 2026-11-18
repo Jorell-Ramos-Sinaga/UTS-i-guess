@@ -143,6 +143,7 @@ MonoBehaviour:
   partToRotate: {fileID: 0}
   firePoint: {fileID: 0}
   bulletPrefab: {fileID: 276091692883054501, guid: 874b9c49a81b70643907770f8df979da, type: 3}
+  fallbackFireHeight: 2
   shootSound: {fileID: 8300000, guid: 8460daaab3e29f747a165b4b7eb51bf5, type: 3}
   shootVolume: 0.6
 --- !u!114 &5970531613763409508

@@ -214,16 +214,16 @@ public class TombWardenAI : MonoBehaviour
         switch (newAction)
         {
             case WardenAction.Advance:
-                movement.enabled = true;
+                movement.SetBlocked(this, false);
                 break;
 
             case WardenAction.Heal:
-                movement.enabled = !stopWhileHealing;
+                movement.SetBlocked(this, stopWhileHealing);
                 healTimer = healInterval; // pulse pertama langsung berjalan
                 break;
 
             case WardenAction.Hold:
-                movement.enabled = false;
+                movement.SetBlocked(this, true);
                 break;
         }
     }

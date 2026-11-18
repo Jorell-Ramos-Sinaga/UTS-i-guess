@@ -1,11 +1,24 @@
 using UnityEngine;
 
+/// <summary>Tipe node pembangunan. Ground = di samping jalur, Path = tepat di atas jalur.</summary>
+public enum NodeType
+{
+    Ground,
+    Path
+}
+
 [RequireComponent(typeof(Collider))]
 public class BuildNode : MonoBehaviour
 {
     [Header("Visual Feedback")]
     [SerializeField] private Color hoverColor = Color.green;
     [SerializeField] private Color notEnoughGoldColor = Color.red;
+    [Tooltip("Warna saat tower yang dipilih tidak boleh dibangun di tipe node ini.")]
+    [SerializeField] private Color wrongTypeColor = new Color(1f, 0.6f, 0f);
+
+    [Header("Node Type")]
+    [Tooltip("Ground = untuk Archer/Cannon. Path = untuk Barrack di atas jalur. Harus cocok dengan 'Placeable On' tower di GameManager.")]
+    [SerializeField] private NodeType nodeType = NodeType.Ground;
 
     [Header("Placement Offset")]
     [Tooltip("Ketinggian posisi spawn tower relatif terhadap posisi node (default: 0.43).")]
@@ -14,6 +27,16 @@ public class BuildNode : MonoBehaviour
     private GameObject currentTower;
     private Renderer nodeRenderer;
     private Color startColor;
+
+    public NodeType Type => nodeType;
+
+    // Apakah tower yang sedang dipilih boleh dibangun di tipe node ini?
+    private bool IsSelectedTowerAllowed()
+    {
+        return GameManager.Instance != null
+            && GameManager.Instance.HasSelectedTower
+            && GameManager.Instance.SelectedTower.placeableOn == nodeType;
+    }
 
     private void Start()
     {
@@ -31,7 +54,15 @@ public class BuildNode : MonoBehaviour
         if (nodeRenderer != null)
         {
             bool canAfford = GameManager.Instance.CanAffordSelectedTower();
-            nodeRenderer.material.color = canAfford ? hoverColor : notEnoughGoldColor;
+            Color feedback = canAfford ? hoverColor : notEnoughGoldColor;
+
+            // Tipe node tidak cocok dengan tower yang dipilih
+            if (GameManager.Instance.HasSelectedTower && !IsSelectedTowerAllowed())
+            {
+                feedback = wrongTypeColor;
+            }
+
+            nodeRenderer.material.color = feedback;
         }
     }
 
@@ -59,6 +90,12 @@ public class BuildNode : MonoBehaviour
 
         if (GameManager.Instance == null || !GameManager.Instance.HasSelectedTower) return;
 
+        if (!IsSelectedTowerAllowed())
+        {
+            Debug.Log($"{GameManager.Instance.SelectedTower.towerName} tidak bisa dibangun di node bertipe {nodeType}.");
+            return;
+        }
+
         TowerData towerToBuild = GameManager.Instance.SelectedTower;
 
         if (GameManager.Instance.BuySelectedTower())
@@ -75,5 +112,15 @@ public class BuildNode : MonoBehaviour
         {
             Debug.Log("Gold tidak mencukupi atau belum memilih jenis Tower!");
         }
+    }
+
+    // Kotak di Scene view: hijau = Ground, kuning = Path
+    private void OnDrawGizmos()
+    {
+        Collider col = GetComponent<Collider>();
+        if (col == null) return;
+
+        Gizmos.color = nodeType == NodeType.Path ? Color.yellow : Color.green;
+        Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
     }
 }

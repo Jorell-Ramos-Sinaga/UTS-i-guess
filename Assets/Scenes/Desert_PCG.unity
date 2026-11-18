@@ -199,6 +199,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &113793555
 BoxCollider:
@@ -327,6 +329,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &125661726
 BoxCollider:
@@ -486,6 +490,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &140067017
 BoxCollider:
@@ -614,6 +620,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 1
   towerOffsetY: 0.43
 --- !u!65 &151660578
 BoxCollider:
@@ -930,6 +938,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &231241683
 BoxCollider:
@@ -1058,6 +1068,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &232474089
 BoxCollider:
@@ -1191,6 +1203,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &258848279
 BoxCollider:
@@ -1629,6 +1643,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &388417187
 BoxCollider:
@@ -1899,6 +1915,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &422901344
 BoxCollider:
@@ -2027,6 +2045,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &488784174
 BoxCollider:
@@ -2764,6 +2784,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &933790685
 BoxCollider:
@@ -2892,6 +2914,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &947225036
 BoxCollider:
@@ -3403,6 +3427,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1190083362
 BoxCollider:
@@ -3643,6 +3669,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1269916982
 BoxCollider:
@@ -3817,6 +3845,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1302035388
 BoxCollider:
@@ -4245,6 +4275,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1402651563
 BoxCollider:
@@ -4373,6 +4405,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 1
   towerOffsetY: 0.43
 --- !u!65 &1425084045
 BoxCollider:
@@ -4501,6 +4535,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 1
   towerOffsetY: 0.43
 --- !u!65 &1439951220
 BoxCollider:
@@ -4629,6 +4665,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 1
   towerOffsetY: 0.43
 --- !u!65 &1480370617
 BoxCollider:
@@ -4793,6 +4831,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1516645457
 BoxCollider:
@@ -5312,6 +5352,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1580433649
 BoxCollider:
@@ -5440,6 +5482,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1619727551
 BoxCollider:
@@ -6025,6 +6069,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1966449357
 BoxCollider:
@@ -6153,6 +6199,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &1972219715
 BoxCollider:
@@ -6729,6 +6777,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildNode
   hoverColor: {r: 0, g: 1, b: 0, a: 1}
   notEnoughGoldColor: {r: 1, g: 0, b: 0, a: 1}
+  wrongTypeColor: {r: 1, g: 0.6, b: 0, a: 1}
+  nodeType: 0
   towerOffsetY: 0.43
 --- !u!65 &2107304194
 BoxCollider:
@@ -6837,18 +6887,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 836c74e2ae73f97469e38e35bdd203b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  startingGold: 500
+  startingGold: 150
   baseHealth: 10
   availableTowers:
   - towerName: Archer Outpost
     prefab: {fileID: 7836756963640546891, guid: 56927e0173c2a884eb8139caaf79d2a8, type: 3}
     cost: 50
+    placeableOn: 0
   - towerName: Cannon
     prefab: {fileID: 1674050128692650, guid: ebf764279e5305d4a925c0cbffaae925, type: 3}
     cost: 100
+    placeableOn: 0
   - towerName: Barrack
     prefab: {fileID: 3123363766704368745, guid: a621a3a99552d66419b4b25b1ec2c451, type: 3}
     cost: 70
+    placeableOn: 1
   baseHitSound: {fileID: 8300000, guid: ea9987dca8f53314e9ed26e27f46b76c, type: 3}
   baseHitVolume: 0.283
 --- !u!4 &2137330582

@@ -7,6 +7,8 @@ public struct TowerData
     public string towerName;
     public GameObject prefab;
     public int cost;
+    [Tooltip("Tipe node tempat tower ini boleh dibangun (Ground atau Path).")]
+    public NodeType placeableOn;
 }
 
 public class GameManager : MonoBehaviour

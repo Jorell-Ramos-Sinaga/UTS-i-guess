@@ -17,7 +17,7 @@ public class CannonTower : Tower
 
     protected override void Shoot()
     {
-        if (bulletPrefab == null || firePoint == null) return;
+        if (bulletPrefab == null) return;
 
         // Pilih target SAAT menembak, lalu ingat lokasinya
         Transform chosen = ChooseTarget();
@@ -26,7 +26,7 @@ public class CannonTower : Tower
         currentTarget = chosen; // agar turret menghadap target yang dipilih
         Vector3 rememberedPoint = chosen.position;
 
-        GameObject shellObj = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        GameObject shellObj = Instantiate(bulletPrefab, GetFireSpawnPosition(), GetFireSpawnRotation());
         CannonShell shell = shellObj.GetComponent<CannonShell>();
 
         if (shell == null)

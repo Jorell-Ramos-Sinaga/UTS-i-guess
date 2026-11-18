@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
@@ -11,6 +12,30 @@ public class EnemyMovement : MonoBehaviour
 
     private Transform[] waypoints;
     private int currentWaypointIndex = 0;
+
+    // Sumber-sumber yang sedang menahan gerakan (Soldier, Warden, Bomber, dll.).
+    // Musuh hanya bergerak jika tidak ada satu pun penahan, sehingga tiap script
+    // tidak saling menimpa status gerak yang lain.
+    private readonly HashSet<object> movementBlockers = new HashSet<object>();
+
+    public bool IsBlocked
+    {
+        get
+        {
+            // Bersihkan penahan yang objeknya sudah dihancurkan
+            movementBlockers.RemoveWhere(source => source is UnityEngine.Object unityObject && unityObject == null);
+            return movementBlockers.Count > 0;
+        }
+    }
+
+    /// <summary>Menahan atau melepas gerakan musuh atas nama 'source' (biasanya 'this').</summary>
+    public void SetBlocked(object source, bool blocked)
+    {
+        if (source == null) return;
+
+        if (blocked) movementBlockers.Add(source);
+        else movementBlockers.Remove(source);
+    }
 
     // Dibaca oleh AI (misalnya Skeleton Bomb) untuk mengetahui jalur yang sedang dipakai
     public Transform[] Waypoints => waypoints;
@@ -55,6 +80,7 @@ public class EnemyMovement : MonoBehaviour
 
     private void Update()
     {
+        if (IsBlocked) return;
         if (waypoints == null || waypoints.Length == 0) return;
         if (currentWaypointIndex >= waypoints.Length) return;
 

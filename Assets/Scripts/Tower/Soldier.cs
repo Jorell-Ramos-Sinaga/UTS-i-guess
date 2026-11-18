@@ -20,6 +20,7 @@ public class Soldier : MonoBehaviour
 
     private Transform currentEnemyTarget;
     private EnemyMovement blockedEnemyMovement;
+    private EnemyMelee blockedEnemyMelee;
     private float attackTimer;
 
     private Animator animator;
@@ -115,7 +116,14 @@ public class Soldier : MonoBehaviour
 
                 if (blockedEnemyMovement != null)
                 {
-                    blockedEnemyMovement.enabled = false;
+                    blockedEnemyMovement.SetBlocked(this, true);
+                }
+
+                // Musuh yang tertahan melawan balik Soldier ini (jika punya EnemyMelee)
+                blockedEnemyMelee = enemyObj.GetComponent<EnemyMelee>();
+                if (blockedEnemyMelee != null)
+                {
+                    blockedEnemyMelee.SetOpponent(this);
                 }
                 break;
             }
@@ -188,8 +196,14 @@ public class Soldier : MonoBehaviour
     {
         if (blockedEnemyMovement != null)
         {
-            blockedEnemyMovement.enabled = true;
+            blockedEnemyMovement.SetBlocked(this, false);
             blockedEnemyMovement = null;
+        }
+
+        if (blockedEnemyMelee != null)
+        {
+            blockedEnemyMelee.ClearOpponent(this);
+            blockedEnemyMelee = null;
         }
         currentEnemyTarget = null;
         ChangeAnimation(idleAnim);

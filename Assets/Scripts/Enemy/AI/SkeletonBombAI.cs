@@ -88,20 +88,20 @@ public class SkeletonBombAI : MonoBehaviour
         {
             case State.Run:
                 lockedTarget = null;
-                movement.enabled = true;
+                movement.SetBlocked(this, false);
                 break;
 
             case State.Lock:
-                movement.enabled = false;
+                movement.SetBlocked(this, true);
                 lockTimer = lockDuration;
                 break;
 
             case State.Chase:
-                movement.enabled = false;
+                movement.SetBlocked(this, true);
                 break;
 
             case State.Explode:
-                movement.enabled = false;
+                movement.SetBlocked(this, true);
                 Explode();
                 break;
         }

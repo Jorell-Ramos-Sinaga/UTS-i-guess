@@ -24,6 +24,8 @@ public class Tower : MonoBehaviour
     [Tooltip("Titik keluarnya peluru")]
     [SerializeField] protected Transform firePoint;
     [SerializeField] protected GameObject bulletPrefab;
+    [Tooltip("Dipakai jika Fire Point kosong: tinggi titik peluru muncul di atas tower.")]
+    [SerializeField] protected float fallbackFireHeight = 2.5f;
 
     [Header("Audio")]
     [Tooltip("Suara saat menembak. Boleh dikosongkan.")]
@@ -116,8 +118,8 @@ public class Tower : MonoBehaviour
     {
         if (bulletPrefab == null || currentTarget == null) return;
 
-        Vector3 spawnPos = firePoint != null ? firePoint.position : (transform.position + Vector3.up * 2.5f);
-        Quaternion spawnRot = firePoint != null ? firePoint.rotation : transform.rotation;
+        Vector3 spawnPos = GetFireSpawnPosition();
+        Quaternion spawnRot = GetFireSpawnRotation();
 
         GameObject bulletObj = Instantiate(bulletPrefab, spawnPos, spawnRot);
         Sfx.Play(shootSound, shootVolume, 0.08f);
@@ -130,10 +132,25 @@ public class Tower : MonoBehaviour
         }
     }
 
+    // Titik dan arah munculnya peluru. Dipakai bersama oleh Archer dan Cannon.
+    protected Vector3 GetFireSpawnPosition()
+    {
+        return firePoint != null ? firePoint.position : transform.position + Vector3.up * fallbackFireHeight;
+    }
+
+    protected Quaternion GetFireSpawnRotation()
+    {
+        return firePoint != null ? firePoint.rotation : transform.rotation;
+    }
+
     // Menggambar radius tembak di Scene View
     protected virtual void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, range);
+
+        // Bola kuning kecil = titik peluru muncul
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(GetFireSpawnPosition(), 0.15f);
     }
 }

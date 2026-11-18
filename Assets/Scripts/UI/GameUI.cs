@@ -150,7 +150,8 @@ public class GameUI : MonoBehaviour
         {
             TowerData t = towers[i];
             bool isSelected = gm.HasSelectedTower && gm.SelectedTower.prefab == t.prefab;
-            string label = $"{t.towerName}\n({t.cost} Gold)";
+            string placeHint = t.placeableOn == NodeType.Path ? "Jalur" : "Tanah";
+            string label = $"{t.towerName}\n({t.cost} Gold | {placeHint})";
 
             GUI.color = isSelected ? Color.green : Color.white;
 
