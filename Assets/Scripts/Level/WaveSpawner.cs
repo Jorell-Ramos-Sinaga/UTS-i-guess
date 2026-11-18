@@ -36,6 +36,12 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private WaypointPath waypointPath;   // Path 1
     [SerializeField] private WaypointPath alternatePath;  // Path 2
 
+    [Header("Integrasi Peta Prosedural")]
+    [Tooltip("Referensi ke MapBuilder. Jika kosong, otomatis dicari di scene.")]
+    [SerializeField] private MapBuilder mapBuilder;
+    [Tooltip("Pengali jumlah musuh untuk jalur tambahan (default: 1.0).")]
+    [SerializeField] private float extraLaneEnemyMultiplier = 1.0f;
+
     [Header("Path Perception")]
     [SerializeField] private bool useTowerPerception = true;
     [SerializeField] private float perceptionRadius = 7f;
@@ -53,6 +59,14 @@ public class WaveSpawner : MonoBehaviour
     public int CurrentWave => currentWaveIndex;
     public int TotalWaves => waves != null ? waves.Length : 0;
 
+    private void Awake()
+    {
+        if (mapBuilder == null)
+        {
+            mapBuilder = FindAnyObjectByType<MapBuilder>();
+        }
+    }
+
     private void Start()
     {
         if (waves == null || waves.Length == 0)
@@ -66,6 +80,12 @@ public class WaveSpawner : MonoBehaviour
 
     private System.Collections.IEnumerator SpawnAllWavesRoutine()
     {
+        // Tunggu peta siap dibangun jika ada MapBuilder di scene
+        if (mapBuilder != null)
+        {
+            yield return new WaitUntil(() => mapBuilder.IsBuilt);
+        }
+
         yield return new WaitForSeconds(startDelay);
 
         while (currentWaveIndex < waves.Length)
@@ -111,7 +131,7 @@ public class WaveSpawner : MonoBehaviour
         {
             if (IsGameEnded()) break;
 
-            SpawnEnemy(spawnQueue[i].prefab, spawnQueue[i].pathOption);
+            SpawnEnemy(spawnQueue[i].prefab, spawnQueue[i].pathOption, spawnQueue[i].targetLane);
             yield return new WaitForSeconds(wave.timeBetweenEnemies);
         }
 
@@ -122,6 +142,7 @@ public class WaveSpawner : MonoBehaviour
     {
         public GameObject prefab;
         public PathSelectionType pathOption;
+        public LaneRuntime targetLane;
     }
 
     private List<EnemySpawnEntryData> BuildSpawnQueue(WaveData wave)
@@ -129,18 +150,78 @@ public class WaveSpawner : MonoBehaviour
         List<EnemySpawnEntryData> queue = new List<EnemySpawnEntryData>();
         if (wave.enemies == null) return queue;
 
+        bool hasLanes = mapBuilder != null && mapBuilder.IsBuilt
+            && mapBuilder.Lanes != null && mapBuilder.Lanes.Count > 0;
+        var lanes = hasLanes ? mapBuilder.Lanes : null;
+        int laneCount = hasLanes ? lanes.Count : 1;
+
+        int[] perLaneCount = new int[laneCount];
+
         foreach (EnemySpawnEntry entry in wave.enemies)
         {
             if (entry == null || entry.enemyPrefab == null) continue;
 
-            for (int i = 0; i < entry.count; i++)
+            if (!hasLanes || laneCount == 1)
             {
-                queue.Add(new EnemySpawnEntryData
+                // Single lane atau scene statis lama
+                LaneRuntime singleLane = hasLanes ? lanes[0] : null;
+                for (int i = 0; i < entry.count; i++)
                 {
-                    prefab = entry.enemyPrefab,
-                    pathOption = entry.pathOption
-                });
+                    queue.Add(new EnemySpawnEntryData
+                    {
+                        prefab = entry.enemyPrefab,
+                        pathOption = entry.pathOption,
+                        targetLane = singleLane
+                    });
+                    perLaneCount[0]++;
+                }
             }
+            else
+            {
+                // Pembagian Opsi A: total musuh dasar dibagi rata secara round-robin antar jalur
+                int totalToSpawn = entry.count;
+                for (int i = 0; i < totalToSpawn; i++)
+                {
+                    int laneIdx = i % laneCount;
+                    queue.Add(new EnemySpawnEntryData
+                    {
+                        prefab = entry.enemyPrefab,
+                        pathOption = entry.pathOption,
+                        targetLane = lanes[laneIdx]
+                    });
+                    perLaneCount[laneIdx]++;
+                }
+
+                // Jika ada pengali ekstra musuh untuk jalur tambahan (jalur index > 0)
+                if (!Mathf.Approximately(extraLaneEnemyMultiplier, 1.0f))
+                {
+                    for (int li = 1; li < laneCount; li++)
+                    {
+                        int extraAmount = Mathf.RoundToInt(perLaneCount[li] * (extraLaneEnemyMultiplier - 1f));
+                        for (int k = 0; k < extraAmount; k++)
+                        {
+                            queue.Add(new EnemySpawnEntryData
+                            {
+                                prefab = entry.enemyPrefab,
+                                pathOption = entry.pathOption,
+                                targetLane = lanes[li]
+                            });
+                            perLaneCount[li]++;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Catat jumlah musuh per jalur di log tiap wave
+        if (hasLanes && laneCount > 1)
+        {
+            var laneStats = new List<string>();
+            for (int li = 0; li < laneCount; li++)
+            {
+                laneStats.Add($"Jalur {li}: {perLaneCount[li]}");
+            }
+            Debug.Log($"[WaveSpawner] Wave {currentWaveIndex} ({wave.waveName}): Total {queue.Count} musuh [{string.Join(", ", laneStats)}]");
         }
 
         if (wave.shuffleOrder)
@@ -155,9 +236,9 @@ public class WaveSpawner : MonoBehaviour
         return queue;
     }
 
-    private void SpawnEnemy(GameObject enemyPrefab, PathSelectionType pathOption)
+    private void SpawnEnemy(GameObject enemyPrefab, PathSelectionType pathOption, LaneRuntime targetLane)
     {
-        WaypointPath chosenPath = ChoosePathByOption(pathOption);
+        WaypointPath chosenPath = ChoosePath(pathOption, targetLane);
         if (enemyPrefab == null || chosenPath == null || chosenPath.points == null || chosenPath.points.Length == 0) return;
 
         Transform spawnPoint = chosenPath.points[0];
@@ -173,6 +254,37 @@ public class WaveSpawner : MonoBehaviour
         {
             movement.SetupPath(chosenPath.points, spawnHeightY);
         }
+    }
+
+    private WaypointPath ChoosePath(PathSelectionType pathOption, LaneRuntime targetLane)
+    {
+        // Jalur prosedural dengan daftar rute
+        if (targetLane != null && targetLane.Routes != null && targetLane.Routes.Count > 0)
+        {
+            var routes = targetLane.Routes;
+            switch (pathOption)
+            {
+                case PathSelectionType.Path1Only:
+                    return routes[0]; // Rute utama
+
+                case PathSelectionType.Path2Only:
+                    return routes.Count > 1 ? routes[1] : routes[0]; // Rute alternatif pertama
+
+                case PathSelectionType.RandomPath:
+                    return routes[Random.Range(0, routes.Count)]; // Acak antar rute jalur ini
+
+                case PathSelectionType.AutoPerception:
+                default:
+                    if (!useTowerPerception || routes.Count <= 1)
+                    {
+                        return routes[0];
+                    }
+                    return PathPerception.ChooseSaferRoute(routes, perceptionRadius);
+            }
+        }
+
+        // Fallback untuk scene statis lama tanpa MapBuilder
+        return ChoosePathByOption(pathOption);
     }
 
     private WaypointPath ChoosePathByOption(PathSelectionType pathOption)

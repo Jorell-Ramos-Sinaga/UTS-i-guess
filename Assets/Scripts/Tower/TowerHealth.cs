@@ -16,6 +16,14 @@ public class TowerHealth : MonoBehaviour
     private void Awake()
     {
         currentHealth = maxHealth;
+
+        // Pastikan ada Collider agar bisa dideteksi oleh Physics.OverlapSphere (Bomber AI)
+        if (GetComponentInChildren<Collider>() == null)
+        {
+            BoxCollider col = gameObject.AddComponent<BoxCollider>();
+            col.size = new Vector3(1f, 2f, 1f);
+            col.center = new Vector3(0f, 1f, 0f);
+        }
     }
 
     public void TakeDamage(float amount)

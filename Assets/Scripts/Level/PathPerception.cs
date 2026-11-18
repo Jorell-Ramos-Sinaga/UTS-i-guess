@@ -39,6 +39,31 @@ public static class PathPerception
         return Random.value < 0.5f ? pathA : pathB;
     }
 
+    /// <summary>
+    /// Memilih rute dengan ancaman tower paling sedikit dari sekumpulan rute di dalam jalur yang sama (M3).
+    /// </summary>
+    public static WaypointPath ChooseSaferRoute(System.Collections.Generic.List<WaypointPath> routes, float radius)
+    {
+        if (routes == null || routes.Count == 0) return null;
+        if (routes.Count == 1) return routes[0];
+
+        WaypointPath bestRoute = routes[0];
+        int lowestThreat = CountTowersNearPath(routes[0], radius);
+
+        for (int i = 1; i < routes.Count; i++)
+        {
+            if (routes[i] == null) continue;
+            int threat = CountTowersNearPath(routes[i], radius);
+            if (threat < lowestThreat)
+            {
+                lowestThreat = threat;
+                bestRoute = routes[i];
+            }
+        }
+
+        return bestRoute;
+    }
+
     public static bool IsNearPath(Vector3 worldPosition, WaypointPath path, float radius)
     {
         if (path == null) return false;

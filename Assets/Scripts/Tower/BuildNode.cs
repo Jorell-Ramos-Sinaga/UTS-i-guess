@@ -30,6 +30,29 @@ public class BuildNode : MonoBehaviour
 
     public NodeType Type => nodeType;
 
+    /// <summary>
+    /// Diinisialisasi secara prosedural oleh MapBuilder saat spawn.
+    /// Mengatur tipe node dan memberi visual tint pembeda untuk Barrack node (Path).
+    /// </summary>
+    public void Initialize(NodeType type)
+    {
+        nodeType = type;
+        if (nodeRenderer == null)
+        {
+            nodeRenderer = GetComponent<Renderer>();
+        }
+
+        if (nodeRenderer != null)
+        {
+            if (nodeType == NodeType.Path)
+            {
+                // Tint pembeda (ungu/magenta) untuk node Barrack di atas/samping jalan
+                nodeRenderer.material.color = new Color(0.85f, 0.45f, 0.95f);
+            }
+            startColor = nodeRenderer.material.color;
+        }
+    }
+
     // Apakah tower yang sedang dipilih boleh dibangun di tipe node ini?
     private bool IsSelectedTowerAllowed()
     {
@@ -40,8 +63,12 @@ public class BuildNode : MonoBehaviour
 
     private void Start()
     {
-        nodeRenderer = GetComponent<Renderer>();
-        if (nodeRenderer != null)
+        if (nodeRenderer == null)
+        {
+            nodeRenderer = GetComponent<Renderer>();
+        }
+
+        if (nodeRenderer != null && startColor == default)
         {
             startColor = nodeRenderer.material.color;
         }

@@ -13,7 +13,8 @@ public class SkeletonBombAI : MonoBehaviour
     [Header("Detection")]
     [SerializeField] private float detectionRadius = 6f;
     [SerializeField] private float scanInterval = 0.2f;
-    [SerializeField] private float onPathRadius = 1.0f;
+    [Tooltip("Radius toleransi on-path dalam satuan tile (default 1.5 tile). Otomatis dikali TileSize jika ada MapGenerator di scene.")]
+    [SerializeField] private float onPathRadius = 1.5f;
 
     [Header("Chase & Explode")]
     [SerializeField] private float lockDuration = 0.25f;
@@ -40,6 +41,7 @@ public class SkeletonBombAI : MonoBehaviour
     private float scanTimer;
     private float lockTimer;
     private float pendingDamage;
+    private float effectiveOnPathRadius;
 
     public string CurrentStateName => currentState.ToString();
     public Transform LockedTarget => lockedTarget;
@@ -56,6 +58,11 @@ public class SkeletonBombAI : MonoBehaviour
     private void Start()
     {
         movement = GetComponent<EnemyMovement>();
+
+        // Hitung radius on-path efektif: jika ada MapGenerator, kalikan dengan TileSize
+        MapGenerator generator = FindAnyObjectByType<MapGenerator>();
+        effectiveOnPathRadius = generator != null ? onPathRadius * generator.TileSize : onPathRadius;
+
         ChangeState(State.Run);
     }
 
@@ -243,7 +250,7 @@ public class SkeletonBombAI : MonoBehaviour
 
     private bool IsOnPath(Vector3 position)
     {
-        return PathPerception.IsNearPath(position, movement.Waypoints, onPathRadius);
+        return PathPerception.IsNearPath(position, movement.Waypoints, effectiveOnPathRadius);
     }
 
     private static float FlatDistance(Vector3 a, Vector3 b)

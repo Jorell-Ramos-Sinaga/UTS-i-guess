@@ -423,7 +423,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CannonTower
   alignGroundHeight: 1
-  groundHeightY: 0.43
+  groundHeightY: 0.47
   range: 5
   fireRate: 0.7
   damage: 20
@@ -431,6 +431,7 @@ MonoBehaviour:
   partToRotate: {fileID: 4458445124252350}
   firePoint: {fileID: 4574405651562524}
   bulletPrefab: {fileID: 1240887441953726, guid: 594601c0e7f323b4ab8ed27f7d8fbc24, type: 3}
+  fallbackFireHeight: 2.5
   shootSound: {fileID: 8300000, guid: 7f003e2090aea4444b419e16299d2224, type: 3}
   shootVolume: 0.6
   splashRadius: 2.5

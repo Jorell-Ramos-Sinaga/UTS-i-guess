@@ -101,6 +101,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec1752f747b3926469e4a0a7a1edbda0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BarrackTower
+  alignGroundHeight: 1
+  groundHeightY: 0.47
   soldierPrefab: {fileID: 4742663683957471967, guid: 57f71fd8d6607ae4695cfb8d9f763733, type: 3}
   maxSoldiers: 3
   spawnInterval: 3
