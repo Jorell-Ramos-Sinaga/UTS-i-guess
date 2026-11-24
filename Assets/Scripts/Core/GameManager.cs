@@ -131,4 +131,26 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+    /// <summary>
+    /// Reset state permainan ke kondisi awal tanpa reload scene.
+    /// Dipakai saat regenerate peta dengan tombol R.
+    /// </summary>
+    public void ResetGame()
+    {
+        IsGameOver = false;
+        IsVictory = false;
+        Time.timeScale = 1f;
+
+        CurrentGold = startingGold;
+        CurrentBaseHealth = baseHealth;
+
+        // Reset pilihan tower ke default (index 0)
+        if (availableTowers != null && availableTowers.Length > 0)
+        {
+            SelectTower(0);
+        }
+
+        Debug.Log($"[GameManager] Reset: Gold={CurrentGold}, BaseHP={CurrentBaseHealth}");
+    }
 }

@@ -78,6 +78,75 @@ public class WaveSpawner : MonoBehaviour
         StartCoroutine(SpawnAllWavesRoutine());
     }
 
+    /// <summary>
+    /// Reset semua state wave: hentikan coroutine aktif, hapus semua musuh dan projectil,
+    /// hapus semua tower yang sudah dibangun, dan mulai ulang spawning dari wave 1.
+    /// Dipanggil saat regenerate peta (tombol R).
+    /// </summary>
+    public void ResetWaves()
+    {
+        // Hentikan semua coroutine spawner
+        StopAllCoroutines();
+        isSpawning = false;
+        currentWaveIndex = 0;
+
+        // Hapus semua musuh yang masih hidup
+        EnemyHealth[] enemies = FindObjectsByType<EnemyHealth>(FindObjectsSortMode.None);
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if (enemies[i] != null) Destroy(enemies[i].gameObject);
+        }
+
+        // Hapus semua projectil (Bullet, CannonShell)
+        Projectile[] projectiles = FindObjectsByType<Projectile>(FindObjectsSortMode.None);
+        for (int i = 0; i < projectiles.Length; i++)
+        {
+            if (projectiles[i] != null) Destroy(projectiles[i].gameObject);
+        }
+
+        CannonShell[] shells = FindObjectsByType<CannonShell>(FindObjectsSortMode.None);
+        for (int i = 0; i < shells.Length; i++)
+        {
+            if (shells[i] != null) Destroy(shells[i].gameObject);
+        }
+
+        // Hapus semua tower yang sudah dibangun. Tower dibuat tanpa induk (bukan anak node),
+        // jadi tidak ikut terhapus saat peta lama dihancurkan. Dicari lewat beberapa komponen
+        // supaya tower yang belum punya TowerHealth tetap ikut terhapus.
+        TowerHealth[] towerHealths = FindObjectsByType<TowerHealth>(FindObjectsSortMode.None);
+        for (int i = 0; i < towerHealths.Length; i++)
+        {
+            if (towerHealths[i] != null) Destroy(towerHealths[i].gameObject);
+        }
+
+        Tower[] shooterTowers = FindObjectsByType<Tower>(FindObjectsSortMode.None); // Archer dan Cannon
+        for (int i = 0; i < shooterTowers.Length; i++)
+        {
+            if (shooterTowers[i] != null) Destroy(shooterTowers[i].gameObject);
+        }
+
+        BarrackTower[] barracks = FindObjectsByType<BarrackTower>(FindObjectsSortMode.None);
+        for (int i = 0; i < barracks.Length; i++)
+        {
+            if (barracks[i] != null) Destroy(barracks[i].gameObject);
+        }
+
+        // Hapus semua soldier Barrack
+        Soldier[] soldiers = FindObjectsByType<Soldier>(FindObjectsSortMode.None);
+        for (int i = 0; i < soldiers.Length; i++)
+        {
+            if (soldiers[i] != null) Destroy(soldiers[i].gameObject);
+        }
+
+        Debug.Log("[WaveSpawner] Reset: semua musuh, tower, dan projectil dihapus. Wave diulang dari 1.");
+
+        // Mulai ulang spawning (peta baru sudah dibangun MapBuilder sebelum ini dipanggil)
+        if (waves != null && waves.Length > 0)
+        {
+            StartCoroutine(SpawnAllWavesRoutine());
+        }
+    }
+
     private System.Collections.IEnumerator SpawnAllWavesRoutine()
     {
         // Tunggu peta siap dibangun jika ada MapBuilder di scene

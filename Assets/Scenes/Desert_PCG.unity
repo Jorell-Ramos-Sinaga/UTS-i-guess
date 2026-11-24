@@ -207,7 +207,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -15, y: 30, z: -21}
+  m_LocalPosition: {x: -17, y: 31, z: -21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -614,7 +614,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
   mapWidth: 32
-  mapHeight: 16
+  mapHeight: 18
   tileSize: 2
   minLeafSize: 10
   maxLeafSize: 16
@@ -635,8 +635,8 @@ MonoBehaviour:
   barrackMinSpacing: 3
   minBarrackNodes: 2
   maxBarrackNodes: 8
-  seed: 10043
-  useRandomSeed: 1
+  seed: 10013
+  useRandomSeed: 0
   maxAttempts: 30
 --- !u!4 &1403180304
 Transform:
@@ -726,7 +726,7 @@ MonoBehaviour:
     yOffset: 0
     scaleRange: {x: 1, y: 1}
     randomYaw: 1
-  decorClearRadius: 2
+  decorClearRadius: 5
   decorDensity: 0.032
   decorMinSpacing: 5
   disableColliders: 1
@@ -763,7 +763,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: a6709f9844d16624795af276fb39b207, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.218
+  m_Volume: 0.102
   m_Pitch: 1
   Loop: 0
   Mute: 0

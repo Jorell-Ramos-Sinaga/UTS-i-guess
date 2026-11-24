@@ -88,6 +88,8 @@ public class MapBuilder : MonoBehaviour
         }
     }
 
+    private bool isRegenerating = false; // flag untuk membedakan startup vs regenerate
+
     private void Start()
     {
         // Jika generator sudah siap sebelum MapBuilder sempat mendengarkan event
@@ -112,6 +114,7 @@ public class MapBuilder : MonoBehaviour
     /// Regenerate peta: panggil ulang MapGenerator.Generate lalu rebuild scene.
     /// - Jika useRandomSeed aktif: seed baru diacak.
     /// - Jika tidak: pakai seed yang sama di Inspector.
+    /// Juga me-reset state game (gold, HP base, wave) ke kondisi awal.
     /// </summary>
     [ContextMenu("Regenerate Map (R)")]
     public void RegenerateMap()
@@ -122,13 +125,15 @@ public class MapBuilder : MonoBehaviour
             return;
         }
 
+        isRegenerating = true;
+
         int nextSeed = mapGenerator.UseRandomSeed
             ? UnityEngine.Random.Range(0, int.MaxValue)
             : mapGenerator.InspectorSeed;
 
         Debug.Log($"[MapBuilder] Regenerate peta — seed: {nextSeed} (randomSeed={mapGenerator.UseRandomSeed})");
         mapGenerator.Generate(nextSeed);
-        // HandleMapGenerated dipanggil melalui event OnMapGenerated → BuildMap()
+        // HandleMapGenerated → BuildMap() → OnMapBuilt → ResetGameState()
     }
 
     private void HandleMapGenerated()
@@ -232,6 +237,13 @@ public class MapBuilder : MonoBehaviour
         IsBuilt = true;
         Debug.Log($"[MapBuilder] Berhasil membangun peta: {width}x{height}, {runtimeLanes.Count} jalur runtime.");
         OnMapBuilt?.Invoke();
+
+        // Jika ini regenerate (bukan startup awal), reset state game setelah peta siap
+        if (isRegenerating)
+        {
+            isRegenerating = false;
+            ResetGameState();
+        }
     }
 
     /// <summary>
@@ -254,6 +266,23 @@ public class MapBuilder : MonoBehaviour
             {
                 DestroyImmediate(existing.gameObject);
             }
+        }
+    }
+
+    // ── Reset State Game setelah Regenerate ─────────────────────────
+    private void ResetGameState()
+    {
+        // 1. Reset gold, HP base, dan state game
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ResetGame();
+        }
+
+        // 2. Reset wave spawner: hapus semua musuh/tower/projectil, mulai wave dari awal
+        WaveSpawner waveSpawner = FindAnyObjectByType<WaveSpawner>();
+        if (waveSpawner != null)
+        {
+            waveSpawner.ResetWaves();
         }
     }
 
